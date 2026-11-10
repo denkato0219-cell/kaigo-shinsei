@@ -43,6 +43,9 @@ h3{font-size:14px;margin:4px 0 6px;color:var(--ink)}
 .paste ol{margin:0 0 8px;padding-left:20px}
 #pasteTxt{width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;font-size:15px;font-family:inherit;margin-bottom:6px;background:#fff}
 #pasteStatus{color:var(--acc)}
+#pwaWarn{background:#fdecea;border:2px solid var(--warn);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:14px;line-height:1.7}
+#pwaWarn b{color:var(--warn)}
+#pwaWarn ol{margin:6px 0 0;padding-left:20px}
 #engine{font-size:12px;color:var(--sub);background:#f1f4f2;border-radius:999px;padding:3px 10px}
 #engine.ready{color:var(--acc);background:var(--acc2)}
 #engine.err{color:var(--warn);background:#fbeeea}
@@ -84,8 +87,20 @@ details pre{white-space:pre-wrap;background:#f7f7f7;padding:8px;border-radius:6p
 <header>
   <h1>介護保険 申請書 転記ツール</h1>
   <p>被保険者証の内容を読み取り → 記入済みの要介護認定申請書を白紙に印刷・PDF保存</p>
+  <p><a href="https://denkato0219-cell.github.io/kaigo-shinsei/manual.html" target="_blank" rel="noopener" style="color:#fff;font-weight:bold">📖 設定と使い方（スマホ・パソコン）</a></p>
 </header>
 <main>
+<div id="pwaWarn" hidden>
+  <b>⚠ ホーム画面のアイコン（Webアプリ）から開いているため、印刷できません。</b><br>
+  アイコンを次の手順で作り直してください（1回だけ）。
+  <ol>
+    <li>このアイコンを長押し →「ブックマークを削除」（または「Appを削除」）</li>
+    <li>Safariで <b>denkato0219-cell.github.io/kaigo-shinsei/</b> を開く</li>
+    <li>共有ボタン（□に↑）→「ホーム画面に追加」</li>
+    <li><b>「Webアプリとして開く」をオフ</b>にして「追加」</li>
+  </ol>
+  「Webアプリとして開く」が出てこない場合は、ショートカットアプリで「URLを開く」を作り、ホーム画面に追加してください。
+</div>
 
 <section>
   <h2>① 被保険者証を読み取る</h2>
@@ -745,6 +760,7 @@ function twoTap(btn,msg){
 }
 $('resetPos').onclick=e=>{if(twoTap(e.currentTarget,'もう一度押すと初期値に戻ります')){pos={};lsSet(POS_KEY,pos);render()}};
 $('printBtn').onclick=()=>{
+  if(window.navigator.standalone===true){$('pwaWarn').hidden=false;$('pwaWarn').scrollIntoView({behavior:'smooth'});return}
   if(adjusting) $('adjBtn').click();
   render(); setTimeout(()=>window.print(),50);
 };
@@ -755,6 +771,8 @@ $('clearBtn').onclick=()=>{
   $('f_appDate').valueAsDate=new Date();$('raw').textContent='';$('pasteTxt').value='';$('pasteStatus').textContent='';cardImg=null;crop=null;$('preview').classList.remove('on');$('cropBox').hidden=true;$('cropClr').hidden=true;$('cropHint').hidden=true;$('ocrBtn').disabled=true;$('rotBtn').disabled=true;render();
 };
 (function init(){
+  // iPhoneのホーム画面Webアプリでは window.print() が動かないので、入力前に知らせる
+  if(window.navigator.standalone===true){$('pwaWarn').hidden=false}
   const s=lsGet(SET_KEY);
   if(s){$('offX').value=s.offX||0;$('offY').value=s.offY||0;$('fs').value=s.fs||3.5;$('pscale').value=s.pscale||100}
   setDefaults();loadOffice();

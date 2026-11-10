@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>申請書転記 使い方</title>
+<style>
+:root{--bg:#f4f6f3;--card:#fff;--ink:#1f2a24;--sub:#5d6b63;--line:#d5ddd8;--acc:#2f7d5b;--acc2:#e8f3ee;--warn:#b5482f;--warnbg:#fdecea}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif;font-size:15px;line-height:1.75}
+header{background:var(--acc);color:#fff;padding:14px 16px}
+header h1{margin:0;font-size:19px}
+header p{margin:4px 0 0;font-size:13px;opacity:.92}
+header a{color:#fff}
+header .url{background:rgba(255,255,255,.2);color:#fff}
+main{max-width:860px;margin:0 auto;padding:12px 16px 48px}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 14px}
+nav a{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 14px;color:var(--acc);text-decoration:none;font-size:14px;font-weight:bold}
+section{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:16px}
+h2{font-size:18px;margin:0 0 8px;color:var(--acc);border-bottom:2px solid var(--acc2);padding-bottom:4px}
+h3{font-size:15.5px;margin:16px 0 6px}
+ol,ul{margin:4px 0 8px;padding-left:22px}
+li{margin:3px 0}
+.box{background:var(--acc2);border:1px solid #bcd9cb;border-radius:8px;padding:10px 12px;margin:8px 0}
+.warn{background:var(--warnbg);border:1px solid #e3b9ad;border-radius:8px;padding:10px 12px;margin:8px 0}
+.warn b,.w{color:var(--warn)}
+table{border-collapse:collapse;width:100%;margin:6px 0 10px;font-size:14px}
+th,td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+th{background:#f1f4f2;white-space:nowrap}
+code,.url{font-family:ui-monospace,Menlo,Consolas,monospace;background:#f1f4f2;border-radius:4px;padding:1px 5px;word-break:break-all}
+.tag{display:inline-block;font-size:12px;font-weight:bold;color:#fff;background:var(--acc);border-radius:4px;padding:0 6px;margin-right:4px}
+.check li{list-style:"☐ "}
+footer{font-size:12px;color:var(--sub);text-align:center}
+@media print{
+  @page{size:A4;margin:12mm}
+  body{background:#fff;font-size:11pt}
+  header{background:none;color:#000;border-bottom:2px solid #000;padding:0 0 6px}
+  header .url{color:#000;background:none}
+  header a,nav{display:none}
+  main{padding:0;max-width:none}
+  section{border:0;padding:0;margin:0 0 10px;break-inside:auto}
+  #pc,#common{break-before:page}
+  .box,.warn{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>介護申請書 転記ツール　設定と使い方</h1>
+  <p>アプリ：<span class="url">https://denkato0219-cell.github.io/kaigo-shinsei/</span>　<a href="index.html">→ アプリを開く</a></p>
+</header>
+<main>
+<nav><a href="#sp">📱 スマホ編</a><a href="#pc">💻 パソコン編</a><a href="#common">✅ 共通ルール・困ったとき</a></nav>
+
+<div class="box">
+  <b>このツールでできること</b>：介護保険被保険者証の内容を読み取り、北九州市の「要介護認定・要支援認定等申請書」を、記入済みの状態で<b>白紙のA4に枠ごと</b>印刷します。<br>
+  入力した内容は<b>保存も送信もしません</b>。ページを閉じると消えます。
+</div>
+
+<!-- ================= スマホ編 ================= -->
+<section id="sp">
+<h2>📱 スマホ編</h2>
+
+<h3><span class="tag">設定</span>最初に1回だけ（iPhone）</h3>
+<ol>
+  <li><b>カメラの文字認識をオンにする</b><br>
+    設定 → カメラ →「検出されたテキストを表示」をオン<br>
+    設定 → 一般 → 言語と地域 →「テキスト認識表示」をオン</li>
+  <li><b>ホーム画面にアイコンを置く</b>（ここが大事）
+    <ol>
+      <li>Safariでアプリのアドレスを開く</li>
+      <li>共有ボタン（□に↑）→「ホーム画面に追加」</li>
+      <li><b class="w">「Webアプリとして開く」をオフ</b>にして「追加」</li>
+    </ol>
+    <div class="warn"><b>オンのままだと印刷できません。</b>画面の上に赤い注意が出たら、アイコンを削除して作り直してください。<br>
+    「Webアプリとして開く」の項目が出ない機種では、そのまま追加して、印刷するときだけSafariで開いてください。</div></li>
+  <li><b>コピーした内容が他の機器に渡らないようにする</b>（Mac・iPadを使っている人）<br>
+    設定 → 一般 → AirPlayと連携（またはHandoff）→「Handoff」をオフ</li>
+  <li><b>プリンターをつなぐ</b><br>
+    AirPrint対応のプリンターなら、同じWi-Fiにつなぐだけで使えます。対応していない場合は、メーカーのアプリ（Canon PRINT／Epson Smart Panel／Brother Mobile Connect など）を入れてください。</li>
+  <li><b>事業所の情報を確認する</b><br>
+    アプリの②「提出代行者・申請者住所」に、名称・住所・電話が最初から入っています。番号と担当者を入れて「この端末に覚える」にチェックします。</li>
+  <li><b>試し刷りをする</b><br>
+    架空の名前で入力して印刷し、窓口の紙の申請書と重ねてずれを見ます。全体が少し縮むときは、③の「詳細設定」→「印刷倍率」を101〜103%に上げて合わせます（その端末に記憶されます）。</li>
+</ol>
+
+<h3><span class="tag">設定</span>Androidの場合</h3>
+<ul>
+  <li>文字の読み取りは <b>Googleレンズ</b> を使います。</li>
+  <li>Chromeでアプリを開き、メニュー（︙）→「ホーム画面に追加」。</li>
+  <li>プリンターは、メーカーのプラグインか「Mopria Print Service」を入れます。</li>
+</ul>
+
+<h3><span class="tag">毎回</span>使い方</h3>
+<ol>
+  <li><b>カメラ</b>アプリを開いて、被保険者証に向けます。<span class="w">シャッターは押しません。</span></li>
+  <li>右下の［テキスト認識］ボタン →「すべてを選択」→「コピー」<br>
+    （Android：Googleレンズ →「テキスト」→「すべて選択」→「コピー」）</li>
+  <li>ホーム画面のアイコンからアプリを開き、①の枠を長押しして「ペースト」します。自動で②に入ります。</li>
+  <li>②を<b>上から順に目で確認</b>します。黄色の欄は自動で入った項目です。
+    <ul><li>フリガナ・個人番号は証に無いので手で入れます。</li>
+    <li>主治医・医療保険などは分かる範囲で入れます。</li></ul></li>
+  <li>③「🖨 印刷する」→ プリンターを選ぶ → <b>用紙A4</b>・<b>部数</b>を確認 →「プリント」<br>
+    （Android：「プリンタを選択」でプリンターを選ぶ → 用紙A4 → 印刷ボタン）</li>
+  <li>印刷した紙に<b>手書き</b>する（下の「共通ルール」参照）。</li>
+  <li><b>後片付け</b>：「入力をすべて消す」を2回押す → 何か別の文字をコピーして、クリップボードを上書きする。</li>
+</ol>
+</section>
+
+<!-- ================= パソコン編 ================= -->
+<section id="pc">
+<h2>💻 パソコン編</h2>
+
+<h3><span class="tag">設定</span>最初に1回だけ</h3>
+<ol>
+  <li><b>開き方を決める</b>（どちらか）
+    <table>
+      <tr><th>ネットで開く（おすすめ）</th><td>Chrome または Edge でアプリのアドレスを開き、<b>お気に入り（ブックマーク）に登録</b>します。いつも最新版が使えます。</td></tr>
+      <tr><th>ファイルで開く</th><td>「介護申請書転記.html」をデスクトップなどに置き、ダブルクリックで開きます。ネットにつながっていなくても入力・印刷できます。直したときはファイルの差し替えが必要です。</td></tr>
+    </table></li>
+  <li><b>事業所の情報を確認する</b>：スマホ編の5と同じです。</li>
+  <li><b>印刷の設定を確かめる</b>（試し刷り）：下の「印刷画面の設定」のとおりにして1枚印刷し、紙の申請書と重ねてずれを見ます。</li>
+</ol>
+
+<h3><span class="tag">毎回</span>使い方</h3>
+<ol>
+  <li>アプリを開きます。</li>
+  <li>被保険者証の内容を入れます（どれか）。
+    <ul>
+      <li><b>手で入力</b>：②に直接入れます。いちばん確実です。</li>
+      <li><b>写真から読み取る</b>：①「写真を選ぶ」で証の写真を選び、読みたい欄を囲んで「読み取り開始」。精度は低めです。氏名・生年月日は手で直してください。</li>
+    </ul>
+    <div class="warn">スマホで読み取った文字を、LINEやメールでパソコンに送るのは<b>やめてください</b>（個人情報が外に出ます）。スマホで読み取ったときは、スマホからそのまま印刷してください。</div></li>
+  <li>②を<b>上から順に目で確認</b>します。</li>
+  <li>③「🖨 印刷する／PDFに保存」を押して、下の設定で印刷します。</li>
+  <li>印刷した紙に<b>手書き</b>します。</li>
+  <li><b>後片付け</b>：「入力をすべて消す」を2回押して、ブラウザのタブを閉じます。</li>
+</ol>
+
+<h3>印刷画面の設定（Chrome・Edge）</h3>
+<table>
+  <tr><th>送信先／プリンター</th><td>使うプリンター</td></tr>
+  <tr><th>部数</th><td>窓口で確認した枚数</td></tr>
+  <tr><th>用紙サイズ</th><td><b>A4</b></td></tr>
+  <tr><th>余白</th><td><b>なし</b></td></tr>
+  <tr><th>倍率（拡大縮小）</th><td><b>100</b>（「ページに合わせる」にしない）</td></tr>
+  <tr><th>ヘッダーとフッター</th><td><b>オフ</b>（チェックを外す）</td></tr>
+</table>
+<p>「余白」「倍率」「ヘッダーとフッター」は「詳細設定」を開くと出てきます。一度設定すれば、次からは同じ設定になることが多いです。</p>
+<p><b>PDFで残す場合</b>は、送信先を「PDFに保存」にします。保存したPDFは個人情報なので、事業所のルールに従って保管・削除してください。</p>
+</section>
+
+<!-- ================= 共通 ================= -->
+<section id="common">
+<h2>✅ 共通ルール</h2>
+
+<h3>印刷後に手書きするところ</h3>
+<ul class="check">
+  <li>同意する項目の ☑（「介護情報の提供」「とびうめ＠きたきゅう」）</li>
+  <li>被保険者氏名（必須）の署名</li>
+  <li>代筆者氏名・続柄（代筆した場合）</li>
+  <li>印字されていない空欄で、必要なところ</li>
+</ul>
+
+<h3>個人情報を守るために</h3>
+<table>
+  <tr><th>しないこと</th><th>理由</th><th>かわりに</th></tr>
+  <tr><td>メモ帳で証をスキャンする</td><td>証の画像がメモに残り、iCloudにも保存される</td><td>カメラの［テキスト認識］を使う</td></tr>
+  <tr><td>シャッターを押して撮る</td><td>写真アプリに残る</td><td>撮ってしまったら削除し、「最近削除した項目」からも消す</td></tr>
+  <tr><td>文字をLINE・メールで送る</td><td>端末の外に出る</td><td>読み取った端末から直接印刷する</td></tr>
+  <tr><td>PDFを保存したまま放置する</td><td>端末やクラウドに残る</td><td>印刷だけにする。保存したら使い終わりに削除</td></tr>
+</table>
+<p>スマホ・パソコンとも、パスコード（パスワード）と自動ロックを必ず設定してください。</p>
+
+<h3>大事なこと</h3>
+<ul>
+  <li>読み取りは完璧ではありません。<b>印刷前に必ず目で確認</b>してください。</li>
+  <li>申請書の様式が変わったら使えなくなります。窓口で新しい様式を渡されたら、管理者に知らせてください。</li>
+</ul>
+</section>
+
+<section>
+<h2>🔧 困ったとき</h2>
+<table>
+  <tr><th>こんなとき</th><th>こうする</th></tr>
+  <tr><td>印刷ボタンを押しても何も出ない（iPhone）</td><td>ホーム画面のアイコンが「Webアプリ」になっています。スマホ編の設定2のとおり作り直すか、Safariで開いて印刷します。</td></tr>
+  <tr><td>プリンターが出てこない</td><td>同じWi-Fiにつながっているか確認します。AirPrint非対応なら「PDFに保存」してメーカーのアプリで印刷します。</td></tr>
+  <tr><td>印刷が少し小さい／ずれる</td><td>倍率100%・余白なしを確認します。それでもずれるときは、③「詳細設定」の「印刷倍率」「全体ずらし」で合わせます。</td></tr>
+  <tr><td>2ページになる／ヘッダーに日付やアドレスが出る</td><td>パソコンの印刷画面で、余白「なし」、ヘッダーとフッター「オフ」にします。</td></tr>
+  <tr><td>貼り付けても項目が入らない</td><td>「貼り付けた文字から入力」を押します。入らない項目は手で入れます。</td></tr>
+  <tr><td>画面が古いまま</td><td>ブラウザで開いて、読み込み直します（スマホは画面を下に引っぱる）。</td></tr>
+  <tr><td>事業所の住所などを1回だけ変えたい</td><td>②でその回だけ書き換えます。「入力をすべて消す」で元に戻ります。</td></tr>
+</table>
+</section>
+
+<footer>介護申請書 転記ツール　使い方（2026年11月版）</footer>
+</main>
+</body>
+</html>
