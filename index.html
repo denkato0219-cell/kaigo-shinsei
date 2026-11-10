@@ -27,6 +27,9 @@ input[type=file]{display:none}
 .f input.auto{background:#fff8e1;border-color:#e6c76a}
 .f.inline{display:flex;gap:4px}
 .f.inline>div{flex:1}
+.f.wide{grid-column:1/-1}
+.f textarea{width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;font-size:15px;font-family:inherit;line-height:1.5;resize:vertical;display:block}
+.f textarea.auto{background:#fff8e1;border-color:#e6c76a}
 fieldset{border:1px solid var(--line);border-radius:8px;margin:0 0 10px;padding:8px 10px 10px}
 legend{font-size:13px;color:var(--acc);font-weight:bold;padding:0 4px}
 #preview{position:relative;display:inline-block;max-width:100%;line-height:0}
@@ -57,7 +60,7 @@ details pre{white-space:pre-wrap;background:#f7f7f7;padding:8px;border-radius:6p
 .fld.boxes span{position:absolute;transform:translate(-50%,-50%);top:0}
 .fld.circle{border:.35mm solid #000;border-radius:50%;transform:translate(-50%,-50%)}
 .fld.r{transform:translate(-100%,-50%)}
-.fld.chk{width:1.6mm;height:3mm;border:solid #000;border-width:0 .55mm .55mm 0;transform:translate(-50%,-65%) rotate(40deg)}
+.fld.box{transform:none;white-space:pre-wrap;line-height:1.3;overflow:hidden;word-break:break-all}
 .adjust .fld{outline:1px dashed #e0533d;background:rgba(255,230,0,.35);cursor:move;touch-action:none}
 .adjust .fld.boxes{min-width:4mm;min-height:4mm}
 .adjust .fld::after{content:attr(data-label);position:absolute;left:0;top:-3.2mm;font:2.4mm sans-serif;color:#c03;background:#fff;white-space:nowrap}
@@ -120,16 +123,20 @@ details pre{white-space:pre-wrap;background:#f7f7f7;padding:8px;border-radius:6p
       <div class="f"><label>申請年月日</label><input type="date" id="f_appDate"></div>
       <div class="f"><label>申請者氏名</label><input id="f_applicant"></div>
       <div class="f"><label>本人との関係</label><input id="f_relation"></div>
+    </div>
+  </fieldset>
+  <fieldset><legend>提出代行者・申請者住所</legend>
+    <div class="grid">
       <div class="f"><label>提出代行者（○をつける番号）</label>
         <select id="f_agentType"><option value="">なし</option><option value="1" selected>1 指定居宅介護支援事業者</option><option value="2">2 介護保険施設</option><option value="3">3 地域包括支援センター</option></select></div>
-      <div class="f"><label>提出代行者 名称</label><input id="f_agentName" data-def="ケアラボレディバグ"></div>
+      <div class="f"><label>名称</label><input id="f_agentName" data-def="ケアラボレディバグ"></div>
       <div class="f"><label>担当者</label><input id="f_tanto"></div>
-      <div class="f"><label>申請者（提出代行者）郵便番号</label><input id="f_aZip" data-def="802-0816"></div>
-      <div class="f"><label>申請者（提出代行者）住所</label><input id="f_aAddr" data-def="北九州市小倉南区若園1丁目7番15号 コーポ今井101号室"></div>
-      <div class="f"><label>申請者（提出代行者）電話番号</label><input id="f_aTel" data-def="093-555-8627"></div>
+      <div class="f"><label>郵便番号</label><input id="f_aZip" inputmode="numeric" data-def="802-0816"></div>
+      <div class="f"><label>電話番号</label><input id="f_aTel" inputmode="tel" data-def="093-555-8627"></div>
+      <div class="f wide"><label>住所</label><textarea class="addr" id="f_aAddr" rows="2" data-def="北九州市小倉南区若園1丁目7番15号 コーポ今井101号室"></textarea></div>
     </div>
     <p class="note">事業所の名称・住所・電話は最初から入っています（その回だけ書き換えることもできます。「入力をすべて消す」で元に戻ります）。</p>
-    <div class="row small" style="margin-top:6px"><label><input type="checkbox" id="optKeep"> 提出代行者の番号と担当者をこの端末に覚える（利用者の情報は覚えません）</label></div>
+    <div class="row small"><label><input type="checkbox" id="optKeep"> 提出代行者の番号と担当者をこの端末に覚える（利用者の情報は覚えません）</label></div>
   </fieldset>
   <fieldset><legend>被保険者</legend>
     <div class="grid">
@@ -141,32 +148,44 @@ details pre{white-space:pre-wrap;background:#f7f7f7;padding:8px;border-radius:6p
       <div class="f"><label>年齢（申請日時点・自動計算）</label><input id="f_age" inputmode="numeric"></div>
       <div class="f"><label>性別</label><select id="f_sex"><option value="">-</option><option>男</option><option>女</option></select></div>
       <div class="f"><label>個人番号（12桁・手入力）</label><input id="f_myNo" inputmode="numeric" maxlength="12"></div>
-      <div class="f"><label>郵便番号</label><input id="f_zip" placeholder="801-0801"></div>
-      <div class="f"><label>住所</label><input id="f_addr"></div>
-      <div class="f"><label>電話番号</label><input id="f_tel"></div>
+      <div class="f"><label>郵便番号</label><input id="f_zip" inputmode="numeric" placeholder="801-0801"></div>
+      <div class="f"><label>電話番号</label><input id="f_tel" inputmode="tel"></div>
+      <div class="f wide"><label>住所（住民票の住所）</label><textarea class="addr" id="f_addr" rows="2"></textarea></div>
     </div>
-    <div class="row small" style="margin-top:6px"><label><input type="checkbox" id="optCity" checked> 区名で始まる住所の先頭に「北九州市」を付ける</label></div>
+    <div class="row small" style="margin-top:6px"><label><input type="checkbox" id="optCity" checked> 区名で始まる住所の先頭に「北九州市」を付ける（被保険者・訪問先の住所）</label></div>
   </fieldset>
   <fieldset><legend>介護保険施設に入所している場合（短期入所を除く）</legend>
     <div class="grid">
       <div class="f"><label>入所施設名</label><input id="f_shName"></div>
-      <div class="f"><label>所在地</label><input id="f_shAddr"></div>
-      <div class="f"><label>電話番号</label><input id="f_shTel"></div>
+      <div class="f"><label>電話番号</label><input id="f_shTel" inputmode="tel"></div>
+      <div class="f wide"><label>所在地</label><textarea class="addr" id="f_shAddr" rows="2"></textarea></div>
     </div>
   </fieldset>
-  <fieldset><legend>連絡先・主治医</legend>
+  <fieldset><legend>訪問先住所（住所と異なる場合）</legend>
     <div class="grid">
-      <div class="f"><label>連絡先 フリガナ</label><input id="f_cKana"></div>
-      <div class="f"><label>連絡先 氏名</label><input id="f_cName"></div>
+      <div class="f"><label>郵便番号</label><input id="f_vZip" inputmode="numeric"></div>
+      <div class="f"><label>電話番号</label><input id="f_vTel" inputmode="tel"></div>
+      <div class="f wide"><label>住所</label><textarea class="addr" id="f_vAddr" rows="2"></textarea></div>
+    </div>
+  </fieldset>
+  <fieldset><legend>連絡先（日中に連絡が取れるところ）</legend>
+    <div class="grid">
+      <div class="f"><label>フリガナ</label><input id="f_cKana"></div>
+      <div class="f"><label>氏名</label><input id="f_cName"></div>
       <div class="f"><label>本人との関係</label><input id="f_cRel"></div>
-      <div class="f"><label>電話番号</label><input id="f_cTel"></div>
+      <div class="f"><label>電話番号</label><input id="f_cTel" inputmode="tel"></div>
+      <div class="f wide"><label>訪問調査に関する希望（改行できます・3〜4行まで）</label><textarea id="f_hope" rows="3" placeholder="例：平日午後希望。長女同席"></textarea></div>
+    </div>
+  </fieldset>
+  <fieldset><legend>主治医</legend>
+    <div class="grid">
       <div class="f inline"><div><label>主治医 姓</label><input id="f_docSei"></div><div><label>名</label><input id="f_docMei"></div></div>
       <div class="f inline"><div><label>フリガナ 姓</label><input id="f_docKanaSei"></div><div><label>名</label><input id="f_docKanaMei"></div></div>
-      <div class="f"><label>医療機関名</label><input id="f_hosp"></div>
+      <div class="f"><label>医療機関名（病院名等）</label><input id="f_hosp"></div>
       <div class="f"><label>診療科（「科」は不要）</label><input id="f_dept" placeholder="内"></div>
-      <div class="f"><label>医療機関 郵便番号</label><input id="f_dZip"></div>
-      <div class="f"><label>医療機関 住所</label><input id="f_dAddr"></div>
-      <div class="f"><label>医療機関 電話番号</label><input id="f_dTel"></div>
+      <div class="f"><label>郵便番号</label><input id="f_dZip" inputmode="numeric"></div>
+      <div class="f"><label>電話番号</label><input id="f_dTel" inputmode="tel"></div>
+      <div class="f wide"><label>住所（医療機関の所在地）</label><textarea class="addr" id="f_dAddr" rows="2"></textarea></div>
       <div class="f"><label>受診状況</label><select id="f_visit"><option value="">-</option><option>通院中</option><option>入院中</option></select></div>
       <div class="f inline"><div><label>最終受診 年</label><input id="f_lastY" placeholder="令和7"></div><div><label>月</label><input id="f_lastM" inputmode="numeric"></div></div>
     </div>
@@ -178,26 +197,42 @@ details pre{white-space:pre-wrap;background:#f7f7f7;padding:8px;border-radius:6p
       <div class="f"><label>記号・番号・枝番</label><input id="f_insKigo"></div>
     </div>
   </fieldset>
-  <fieldset><legend>2号被保険者（40〜64歳）のみ ／ 変更申請のみ</legend>
+  <fieldset><legend>2号被保険者（40〜64歳の医療保険加入者）のみ</legend>
     <div class="grid">
-      <div class="f"><label>特定疾病名</label><input id="f_disease"></div>
-      <div class="f"><label>変更申請の理由</label><input id="f_reason"></div>
+      <div class="f wide"><label>特定疾病名</label><input id="f_disease"></div>
     </div>
   </fieldset>
-  <fieldset><legend>前回の要介護認定の結果（更新の場合）</legend>
+  <fieldset><legend>前回の要介護認定の結果等（現に認定を受けている方）</legend>
     <div class="grid">
       <div class="f"><label>結果</label><input id="f_prevResult" placeholder="要介護2"></div>
       <div class="f inline"><div><label>満了日 令和 年</label><input id="f_expY" inputmode="numeric"></div><div><label>月</label><input id="f_expM" inputmode="numeric"></div><div><label>日</label><input id="f_expD" inputmode="numeric"></div></div>
     </div>
+    <h3 style="margin-top:10px">14日以内に他自治体から転入した方のみ</h3>
+    <div class="grid">
+      <div class="f"><label>転出元自治体（市町村）名</label><input id="f_tenshutsu"></div>
+      <div class="f"><label>転出元自治体に要介護・要支援認定を申請中ですか</label><select id="f_pending"><option value="">-</option><option>はい</option><option>いいえ</option></select></div>
+      <div class="f"><label>「はい」の場合の申請日</label><input type="date" id="f_pendDate"></div>
+    </div>
+    <p class="note">既に認定結果通知を受け取っている場合は「いいえ」を選んでください。</p>
   </fieldset>
-  <fieldset><legend>同意（本人に説明して同意を得た項目だけ☑）</legend>
-    <div class="row small"><label><input type="checkbox" id="f_agree1"> 「介護情報の提供」に同意</label></div>
-    <div class="row small"><label><input type="checkbox" id="f_agree2"> 「とびうめ＠きたきゅう」に同意</label></div>
-    <p class="note">「被保険者氏名（必須）」の署名欄は印字しません。手書きで署名してください。</p>
+  <fieldset><legend>変更申請の方のみ</legend>
+    <div class="grid">
+      <div class="f wide"><label>変更申請の理由</label><input id="f_reason"></div>
+    </div>
   </fieldset>
+  <fieldset><legend>とびうめ緊急連絡先（「とびうめ＠きたきゅう」に登録を希望する方）</legend>
+    <div class="grid">
+      <div class="f"><label>フリガナ</label><input id="f_tKana"></div>
+      <div class="f"><label>氏名</label><input id="f_tName"></div>
+      <div class="f"><label>被保険者との続柄</label><input id="f_tRel"></div>
+      <div class="f"><label>電話番号</label><input id="f_tTel" inputmode="tel"></div>
+    </div>
+  </fieldset>
+  <p class="note">同意の☑と「被保険者氏名（必須）」の署名、代筆者氏名は印字しません。印刷後に手書きで記入してください。</p>
   <div class="row"><button class="danger" id="clearBtn">入力をすべて消す</button></div>
   <p class="note">入力内容は保存されません（個人情報保護のため）。ページを閉じると消えます。<br>※「覚える」にチェックした提出代行者の番号と担当者だけは、この端末に残ります。</p>
 </section>
+
 
 <section id="printSec">
   <h2>③ 印刷</h2>
@@ -226,9 +261,9 @@ details pre{white-space:pre-wrap;background:#f7f7f7;padding:8px;border-radius:6p
 /* ===== 印字位置（mm, A4左上基準）===== */
 const FIELDS=[
  /* 申請書（北九州市・Word版）の罫線と文字の位置から測った値 */
- {id:'appY',label:'申請 年',x:159.5,y:16.8,c:1},
- {id:'appM',label:'申請 月',x:169,y:16.8,c:1},
- {id:'appD',label:'申請 日',x:180.5,y:16.8,c:1},
+ {id:'appY',label:'申請 年',x:158.6,y:16.8,c:1},
+ {id:'appM',label:'申請 月',x:171.2,y:16.8,c:1},
+ {id:'appD',label:'申請 日',x:183.7,y:16.8,c:1},
  {id:'hihoNo',label:'被保険者番号',x:0,y:22.8,type:'boxes',xs:[126.25,133.75,141.25,148.8,156.35,163.65,170.7,177.65,184.55,191.5]},
  {id:'applicant',label:'申請者氏名',x:43,y:31.2},
  {id:'relation',label:'本人との関係',x:148,y:31.2},
@@ -237,43 +272,43 @@ const FIELDS=[
  {id:'agentName',label:'代行者名称',x:44,y:43.3,w:85},
  {id:'kana',label:'フリガナ',x:50,y:58.4,s:.8},
  {id:'name',label:'氏名',x:50,y:66,s:1.4},
- {id:'era',label:'元号○',x:124.8,y:59.6,type:'circle',opts:{'明治':0,'大正':4.7,'昭和':10.4},d:4.6},
- {id:'birthY',label:'生 年',x:140,y:59.6,c:1},
- {id:'birthM',label:'生 月',x:148.8,y:59.6,c:1},
- {id:'birthD',label:'生 日',x:158,y:59.6,c:1},
+ {id:'era',label:'元号○',x:125.6,y:59.5,type:'circle',opts:{'明治':0,'大正':4.6,'昭和':9.5},d:4.6},
+ {id:'birthY',label:'生 年',x:140.5,y:59.5,c:1},
+ {id:'birthM',label:'生 月',x:149.8,y:59.5,c:1},
+ {id:'birthD',label:'生 日',x:157.4,y:59.5,c:1},
  {id:'age',label:'歳',x:155,y:63.4,c:1},
- {id:'sex',label:'性別○',x:181.5,y:61.1,type:'circle',opts:{'男':0,'女':7},d:5.6},
+ {id:'sex',label:'性別○',x:182,y:61.3,type:'circle',opts:{'男':0,'女':6.2},d:5.6},
  {id:'myNo',label:'個人番号',x:0,y:68.7,type:'boxes',xs:[139.9,144.7,149.5,154.3,159.1,163.9,168.7,173.5,178.3,183.1,187.9,192.7]},
  {id:'zip1',label:'〒前',x:58.7,y:73.8,c:1},
  {id:'zip2',label:'〒後',x:74.5,y:73.8,c:1},
- {id:'telA',label:'電話 市外',x:151.7,y:73.8,c:1},
- {id:'telB',label:'電話 局番',x:164.7,y:73.8,c:1},
- {id:'telC',label:'電話 番号',x:174.5,y:73.8},
+ {id:'telA',label:'電話 市外',x:148.5,y:73.8,c:1},
+ {id:'telB',label:'電話 局番',x:164.5,y:73.8,c:1},
+ {id:'telC',label:'電話 番号',x:175,y:73.8},
  {id:'addr',label:'住所',x:50,y:77.6},
  {id:'cName',label:'連絡先氏名',x:57,y:109.5,s:.85},
- {id:'cRel',label:'連絡先関係',x:73,y:112.2,s:.85},
- {id:'cTelA',label:'連絡先 市外',x:69.5,y:114.8,c:1,s:.85},
- {id:'cTelB',label:'連絡先 局番',x:84.3,y:114.8,c:1,s:.85},
- {id:'cTelC',label:'連絡先 番号',x:93.5,y:114.8,s:.85},
+ {id:'cRel',label:'連絡先関係',x:87,y:112.8,c:1,s:.85,w:36},
+ {id:'cTelA',label:'連絡先 市外',x:69.5,y:115.3,c:1,s:.85},
+ {id:'cTelB',label:'連絡先 局番',x:84.3,y:115.3,c:1,s:.85},
+ {id:'cTelC',label:'連絡先 番号',x:93.5,y:115.3,s:.85},
  {id:'docSei',label:'医師 姓',x:71,y:126.3},
  {id:'docMei',label:'医師 名',x:95,y:126.3},
  {id:'hosp',label:'医療機関',x:139,y:124.2},
- {id:'prevResult',label:'前回結果',x:56,y:175.2},
- {id:'expY',label:'満了 年',x:141.3,y:175.2,c:1},
- {id:'expM',label:'満了 月',x:152.5,y:175.2,c:1},
- {id:'expD',label:'満了 日',x:164.3,y:175.2,c:1},
+ {id:'prevResult',label:'前回結果',x:56,y:174.1,w:55},
+ {id:'expY',label:'満了 年',x:144.5,y:174.1,c:1},
+ {id:'expM',label:'満了 月',x:156.8,y:174.1,c:1},
+ {id:'expD',label:'満了 日',x:169.1,y:174.1,c:1},
  /* 追加欄（2026-11-10） */
  {id:'aZip1',label:'申請者〒前',x:51.3,y:48.9,c:1},
  {id:'aZip2',label:'申請者〒後',x:67.3,y:48.9,c:1},
  {id:'aAddr',label:'申請者住所',x:79,y:48.9,w:45,alt:{x:50,y:52.6,w:142,s:.9}},
- {id:'aTelA',label:'申請者 市外',x:151.3,y:48.9,c:1},
- {id:'aTelB',label:'申請者 局番',x:164.4,y:48.9,c:1},
- {id:'aTelC',label:'申請者 番号',x:174.2,y:48.9},
+ {id:'aTelA',label:'申請者 市外',x:148.3,y:48.9,c:1},
+ {id:'aTelB',label:'申請者 局番',x:164.2,y:48.9,c:1},
+ {id:'aTelC',label:'申請者 番号',x:174.7,y:48.9},
  {id:'shName',label:'入所施設名',x:63.5,y:84.2,w:130},
  {id:'shAddr',label:'施設所在地',x:63.5,y:89.7,w:61,alt:{x:63.5,y:93.4,w:129,s:.85}},
- {id:'shTelA',label:'施設 市外',x:151.1,y:89.7,c:1},
- {id:'shTelB',label:'施設 局番',x:164,y:89.7,c:1},
- {id:'shTelC',label:'施設 番号',x:173.8,y:89.7},
+ {id:'shTelA',label:'施設 市外',x:148,y:89.7,c:1},
+ {id:'shTelB',label:'施設 局番',x:163.9,y:89.7,c:1},
+ {id:'shTelC',label:'施設 番号',x:174.3,y:89.7},
  {id:'cKana',label:'連絡先フリガナ',x:66,y:107.2,s:.75,w:55},
  {id:'docKanaSei',label:'医師 セイ',x:73.5,y:120.5,s:.75,w:17},
  {id:'docKanaMei',label:'医師 メイ',x:97.5,y:120.5,s:.75,w:17},
@@ -281,19 +316,35 @@ const FIELDS=[
  {id:'dZip1',label:'医療機関〒前',x:59.2,y:132.1,c:1},
  {id:'dZip2',label:'医療機関〒後',x:76.5,y:132.1,c:1},
  {id:'dAddr',label:'医療機関住所',x:84,y:132.1,w:40,alt:{x:52,y:135.7,w:140,s:.9}},
- {id:'dTelA',label:'医療機関 市外',x:153.4,y:132.1,c:1},
- {id:'dTelB',label:'医療機関 局番',x:168.6,y:132.1,c:1},
- {id:'dTelC',label:'医療機関 番号',x:178.4,y:132.1},
+ {id:'dTelA',label:'医療機関 市外',x:150.3,y:132.1,c:1},
+ {id:'dTelB',label:'医療機関 局番',x:167.3,y:132.1,c:1},
+ {id:'dTelC',label:'医療機関 番号',x:178.8,y:132.1},
  {id:'visit',label:'受診状況○',x:77.7,y:140.8,type:'circle',opts:{'通院中':0,'入院中':99.2},d:13,h:5.6},
- {id:'lastY',label:'最終受診 年',x:114,y:140.8,c:1},
- {id:'lastM',label:'最終受診 月',x:133.5,y:140.8,c:1},
+ {id:'lastY',label:'最終受診 年',x:112.6,y:140.8,c:1},
+ {id:'lastM',label:'最終受診 月',x:131.6,y:140.8,c:1},
  {id:'insName',label:'医療保険者名',x:82.5,y:147,w:46},
  {id:'insNo',label:'医療保険者番号',x:82.5,y:151.5,s:.85,w:46},
  {id:'insKigo',label:'記号番号枝番',x:159.5,y:149.1,w:34},
  {id:'disease',label:'特定疾病',x:50,y:162.7,w:143},
  {id:'reason',label:'変更理由',x:50,y:203.1,w:143},
- {id:'agree1',label:'同意1',x:18.5,y:214,type:'chk'},
- {id:'agree2',label:'同意2',x:18.5,y:243.6,type:'chk'}
+ {id:'vZip1',label:'訪問先〒前',x:58.7,y:97.3,c:1},
+ {id:'vZip2',label:'訪問先〒後',x:74.5,y:97.3,c:1},
+ {id:'vTelA',label:'訪問先 市外',x:148.5,y:97.3,c:1},
+ {id:'vTelB',label:'訪問先 局番',x:164.5,y:97.3,c:1},
+ {id:'vTelC',label:'訪問先 番号',x:175,y:97.3},
+ {id:'vAddr',label:'訪問先住所',x:50,y:101.2,w:143},
+ {id:'hope',label:'訪問調査希望',x:157.4,y:105,type:'box',w:37,h:12.6,s:.8},
+ {id:'tenshutsu',label:'転出元自治体',x:142,y:179.7,c:1,w:36},
+ {id:'pending',label:'申請中○',x:174.5,y:188.9,type:'circle',opts:{'はい':0,'いいえ':14.7},d:9.5,h:4.4},
+ {id:'pendY',label:'申請日 年',x:160.3,y:192.1,c:1},
+ {id:'pendM',label:'申請日 月',x:173.4,y:192.1,c:1},
+ {id:'pendD',label:'申請日 日',x:185.5,y:192.1,c:1},
+ {id:'tKana',label:'とびうめフリガナ',x:79,y:268.9,s:.75,w:42},
+ {id:'tName',label:'とびうめ氏名',x:81,y:273.4,w:45},
+ {id:'tRel',label:'とびうめ続柄',x:171.5,y:268.9,c:1,w:38},
+ {id:'tTelA',label:'とびうめ 市外',x:149.8,y:273.4,c:1},
+ {id:'tTelB',label:'とびうめ 局番',x:164.9,y:273.4,c:1},
+ {id:'tTelC',label:'とびうめ 番号',x:175.5,y:273.4}
 ];
 const KEEP_KEY='kaigoTenki_office_v1', KEEP_IDS=['agentType','tanto'];
 // 事業所の固定値（data-def）を入れる
@@ -440,19 +491,23 @@ function values(){
   const [ay,am,ad]=wareki($('f_appDate').value);
   const zip=g('zip').replace(/[^\d]/g,'');
   const zz=(k,id)=>{const z=g(id).replace(/[^\d]/g,'');return {[k+'1']:z.slice(0,3),[k+'2']:z.slice(3,7)}};
-  const ck=id=>$('f_'+id).checked?'1':'';
-  let addr=g('addr');
-  if($('optCity').checked&&/^(門司区|小倉北区|小倉南区|若松区|八幡東区|八幡西区|戸畑区)/.test(addr)) addr='北九州市'+addr;
+  const one=id=>g(id).replace(/\s*\n\s*/g,' ');  // 住所の改行は空白に
+  const city=a=>($('optCity').checked&&/^(門司区|小倉北区|小倉南区|若松区|八幡東区|八幡西区|戸畑区)/.test(a))?'北九州市'+a:a;
+  const [py,pm,pd]=wareki($('f_pendDate').value);
+  const addr=city(one('addr'));
   return {appY:ay,appM:am,appD:ad,hihoNo:g('hihoNo').replace(/\D/g,''),applicant:g('applicant'),relation:g('relation'),
     agentType:g('agentType'),agentName:g('agentName'),tanto:g('tanto'),kana:g('kana'),name:g('name'),era:g('era'),
     birthY:g('birthY'),birthM:g('birthM'),birthD:g('birthD'),age:g('age'),sex:g('sex'),myNo:g('myNo').replace(/\D/g,''),
     zip1:zip.slice(0,3),zip2:zip.slice(3,7),...telParts('tel',g('tel')),addr,cName:g('cName'),cRel:g('cRel'),...telParts('cTel',g('cTel')),
     docSei:g('docSei'),docMei:g('docMei'),hosp:g('hosp'),prevResult:g('prevResult'),expY:g('expY'),expM:g('expM'),expD:g('expD'),
-    ...zz('aZip','aZip'),aAddr:g('aAddr'),...telParts('aTel',g('aTel')),
-    shName:g('shName'),shAddr:g('shAddr'),...telParts('shTel',g('shTel')),cKana:g('cKana'),
+    ...zz('aZip','aZip'),aAddr:one('aAddr'),...telParts('aTel',g('aTel')),
+    shName:g('shName'),shAddr:one('shAddr'),...telParts('shTel',g('shTel')),cKana:g('cKana'),
     docKanaSei:g('docKanaSei'),docKanaMei:g('docKanaMei'),dept:g('dept').replace(/科$/,''),
-    ...zz('dZip','dZip'),dAddr:g('dAddr'),...telParts('dTel',g('dTel')),visit:g('visit'),lastY:g('lastY'),lastM:g('lastM'),
-    insName:g('insName'),insNo:g('insNo'),insKigo:g('insKigo'),disease:g('disease'),reason:g('reason'),agree1:ck('agree1'),agree2:ck('agree2')};
+    ...zz('dZip','dZip'),dAddr:one('dAddr'),...telParts('dTel',g('dTel')),visit:g('visit'),lastY:g('lastY'),lastM:g('lastM'),
+    insName:g('insName'),insNo:g('insNo'),insKigo:g('insKigo'),disease:g('disease'),reason:g('reason'),
+    ...zz('vZip','vZip'),vAddr:city(one('vAddr')),...telParts('vTel',g('vTel')),hope:g('hope'),
+    tenshutsu:g('tenshutsu'),pending:g('pending'),pendY:py,pendM:pm,pendD:pd,
+    tKana:g('tKana'),tName:g('tName'),tRel:g('tRel'),...telParts('tTel',g('tTel'))};
 }
 
 /* ===== 描画 ===== */
@@ -480,10 +535,10 @@ function render(){
       el.style.left=(p.x+dx)+'mm'; el.style.top=p.y+'mm';
       el.style.width=f.d+'mm'; el.style.height=(f.h||f.d)+'mm';
       if(!val) el.style.opacity=.4;
-    }else if(f.type==='chk'){
-      el.classList.add('chk');
-      el.style.left=p.x+'mm'; el.style.top=p.y+'mm';
-      if(!val) el.style.opacity=.4;
+    }else if(f.type==='box'){
+      el.classList.add('box');
+      el.style.left=p.x+'mm'; el.style.top=p.y+'mm'; el.style.width=f.w+'mm'; el.style.height=f.h+'mm';
+      el.textContent=val||(adjusting?'●':'');
     }else{
       if(f.c) el.classList.add('c');
       if(f.r) el.classList.add('r');
@@ -492,7 +547,11 @@ function render(){
     }
     layer.appendChild(el);
     // 欄に収まらない長さのときは文字を小さくする（最小で6割）
-    if(f.w&&val){
+    if(f.type==='box'&&val){
+      // 枠の高さに収まるまで文字を小さくする
+      let k=1; const base=fs*(f.s||1);
+      while(el.scrollHeight>el.clientHeight+1&&k>.55){k-=.05;el.style.fontSize=(base*k)+'mm'}
+    }else if(f.w&&val){
       const pxmm=$('sheet').offsetWidth/210, maxW=f.w*pxmm;
       const shrink=(s,w)=>{if(el.offsetWidth>w*pxmm) el.style.fontSize=(fs*s*Math.max(.6,w*pxmm/el.offsetWidth))+'mm'};
       // 1行目に入りきらない欄は、下の段（alt）に移して書く
@@ -659,7 +718,7 @@ $('pasteTxt').addEventListener('paste',()=>setTimeout(()=>$('pasteBtn').click(),
 $('pasteClr').onclick=()=>{$('pasteTxt').value='';$('pasteStatus').textContent=''};
 
 /* ===== 各種イベント ===== */
-document.querySelectorAll('main input,main select').forEach(el=>{
+document.querySelectorAll('main input,main select,main textarea:not(#pasteTxt)').forEach(el=>{
   if(el.type==='file') return;
   el.addEventListener('input',()=>{el.classList.remove('auto');if(/f_(era|birth|appDate)/.test(el.id))calcAge();if(['offX','offY','fs','pscale'].includes(el.id))saveSet();render()});
   el.addEventListener('change',()=>{if(/f_(era|birth|appDate)/.test(el.id))calcAge();render()});
@@ -691,8 +750,8 @@ $('printBtn').onclick=()=>{
 };
 $('clearBtn').onclick=()=>{
   if(!twoTap($('clearBtn'),'もう一度押すとすべて消えます'))return;
-  document.querySelectorAll('section input:not([type=file]):not([type=number]):not([type=checkbox])').forEach(i=>{i.value='';i.classList.remove('auto')});
-  $('f_agree1').checked=$('f_agree2').checked=false;$('f_visit').value='';setDefaults();loadOffice();
+  document.querySelectorAll('section input:not([type=file]):not([type=number]):not([type=checkbox]),section textarea').forEach(i=>{i.value='';i.classList.remove('auto')});
+  $('f_visit').value='';$('f_pending').value='';setDefaults();loadOffice();
   $('f_appDate').valueAsDate=new Date();$('raw').textContent='';$('pasteTxt').value='';$('pasteStatus').textContent='';cardImg=null;crop=null;$('preview').classList.remove('on');$('cropBox').hidden=true;$('cropClr').hidden=true;$('cropHint').hidden=true;$('ocrBtn').disabled=true;$('rotBtn').disabled=true;render();
 };
 (function init(){
