@@ -105,13 +105,18 @@ details pre{white-space:pre-wrap;background:#f7f7f7;padding:8px;border-radius:6p
 <section>
   <h2>① 被保険者証を読み取る</h2>
   <div class="paste">
-    <h3>おすすめ：スマホの文字認識でコピーして貼り付ける</h3>
-    <ol class="note">
-      <li><b>iPhone</b>：カメラで証を写し、右下に出る［テキスト認識］ボタン → 「すべてを選択」→「コピー」<br>
-          <b>Android</b>：Googleレンズで証を写し、「テキスト」→「すべて選択」→「コピー」</li>
-      <li>下の枠を長押しして「ペースト」（貼り付けると自動で②に入力されます）</li>
+    <h3>おすすめ：iPhoneの「テキストをスキャン」で読み取る</h3>
+    <div class="row"><button id="scanBtn">📷 カメラで証を読み取る（iPhone）</button></div>
+    <ol class="note" id="scanHelp">
+      <li>上のボタンを押す（または下の枠をタップ）→ <b>枠をもう一度タップ</b> → 出てきたメニューの<b>「テキストをスキャン」</b>（カメラのマーク）</li>
+      <li>カメラが開くので証に向け、文字が黄色の枠で囲まれたら<b>「挿入」</b>（自動で②に入力されます）</li>
     </ol>
-    <textarea id="pasteTxt" rows="5" placeholder="ここに貼り付け"></textarea>
+    <details class="note"><summary>うまくいかないとき・Androidの場合（コピーして貼り付ける）</summary>
+      <b>iPhone</b>：カメラアプリで証を写し、右下の［テキスト認識］→「すべてを選択」→「コピー」<br>
+      <b>Android</b>：Googleレンズで証を写し、「テキスト」→「すべて選択」→「コピー」<br>
+      → 下の枠を長押しして「ペースト」
+    </details>
+    <textarea id="pasteTxt" rows="5" placeholder="ここをタップ →もう一度タップ →「テキストをスキャン」／または貼り付け"></textarea>
     <div class="row"><button id="pasteBtn">貼り付けた文字から入力</button><button class="sub" id="pasteClr">枠を空にする</button><span id="pasteStatus" class="small"></span></div>
   </div>
   <h3>または：このアプリで写真から読み取る（精度は低め）</h3>
@@ -730,6 +735,17 @@ $('pasteBtn').onclick=()=>{
 };
 // 貼り付けたらボタンを押さなくても自動で入力する
 $('pasteTxt').addEventListener('paste',()=>setTimeout(()=>$('pasteBtn').click(),0));
+// 「テキストをスキャン」で挿入された文字は paste にならないので、入力が止まって少したったら自動で解析する
+let scanTimer=null;
+$('pasteTxt').addEventListener('input',e=>{
+  if(e.inputType==='insertFromPaste') return;
+  clearTimeout(scanTimer);
+  scanTimer=setTimeout(()=>{if($('pasteTxt').value.trim().length>=10) $('pasteBtn').click()},900);
+});
+$('scanBtn').onclick=()=>{
+  const t=$('pasteTxt'); t.scrollIntoView({block:'center'}); t.focus();
+  $('pasteStatus').textContent='枠をもう一度タップして「テキストをスキャン」を選んでください。';
+};
 $('pasteClr').onclick=()=>{$('pasteTxt').value='';$('pasteStatus').textContent=''};
 
 /* ===== 各種イベント ===== */
