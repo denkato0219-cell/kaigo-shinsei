@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>介護申請書 転記</title>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
+<style>
+:root{--bg:#f4f6f3;--card:#fff;--ink:#1f2a24;--sub:#5d6b63;--line:#d5ddd8;--acc:#2f7d5b;--acc2:#e8f3ee;--warn:#b5482f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif;font-size:15px}
+header{background:var(--acc);color:#fff;padding:12px 16px}
+header h1{margin:0;font-size:18px}
+header p{margin:4px 0 0;font-size:12px;opacity:.9}
+main{max-width:1100px;margin:0 auto;padding:12px 16px 40px}
+section{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px}
+h2{font-size:16px;margin:0 0 10px;color:var(--acc)}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}
+button,.btn{background:var(--acc);color:#fff;border:0;border-radius:8px;padding:9px 14px;font-size:14px;cursor:pointer;font-family:inherit}
+button.sub,.btn.sub{background:var(--acc2);color:var(--acc);border:1px solid #bcd9cb}
+button.danger{background:#fff;color:var(--warn);border:1px solid #e3b9ad}
+button:disabled{opacity:.5;cursor:default}
+input[type=file]{display:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.f label{display:block;font-size:12px;color:var(--sub);margin-bottom:3px}
+.f input,.f select{width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;font-size:15px;font-family:inherit}
+.f input.auto{background:#fff8e1;border-color:#e6c76a}
+.f.inline{display:flex;gap:4px}
+.f.inline>div{flex:1}
+fieldset{border:1px solid var(--line);border-radius:8px;margin:0 0 10px;padding:8px 10px 10px}
+legend{font-size:13px;color:var(--acc);font-weight:bold;padding:0 4px}
+#preview{position:relative;display:inline-block;max-width:100%;line-height:0}
+#prevCv{display:none;max-width:100%;max-height:340px;border-radius:6px;border:1px solid var(--line);touch-action:none;cursor:crosshair}
+#preview.on #prevCv{display:block}
+#cropBox{position:absolute;border:2px solid #e0533d;background:rgba(224,83,61,.12);box-shadow:0 0 0 9999px rgba(0,0,0,.35);pointer-events:none}
+#preview{overflow:hidden;border-radius:6px}
+#status{font-size:13px;color:var(--sub)}
+h3{font-size:14px;margin:4px 0 6px;color:var(--ink)}
+.paste{background:var(--acc2);border:1px solid #bcd9cb;border-radius:8px;padding:10px 12px;margin-bottom:14px}
+.paste ol{margin:0 0 8px;padding-left:20px}
+#pasteTxt{width:100%;padding:8px;border:1px solid var(--line);border-radius:6px;font-size:15px;font-family:inherit;margin-bottom:6px;background:#fff}
+#pasteStatus{color:var(--acc)}
+#engine{font-size:12px;color:var(--sub);background:#f1f4f2;border-radius:999px;padding:3px 10px}
+#engine.ready{color:var(--acc);background:var(--acc2)}
+#engine.err{color:var(--warn);background:#fbeeea}
+progress{width:200px}
+details{font-size:12px;color:var(--sub)}
+details pre{white-space:pre-wrap;background:#f7f7f7;padding:8px;border-radius:6px;max-height:200px;overflow:auto}
+.note{font-size:12px;color:var(--sub);line-height:1.6}
+.note b{color:var(--warn)}
+#wrap{width:100%;overflow:hidden;border:1px solid var(--line);border-radius:6px;background:#ccc}
+#sheet{position:relative;width:210mm;height:297mm;background:#fff;transform-origin:0 0;overflow:hidden}
+#bg{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;display:block}
+#layer{position:absolute;inset:0}
+.fld{position:absolute;white-space:nowrap;font-family:"Yu Mincho","Hiragino Mincho ProN","MS Mincho",serif;color:#000;line-height:1;transform:translate(0,-50%)}
+.fld.c{transform:translate(-50%,-50%)}
+.fld.boxes span{position:absolute;transform:translate(-50%,-50%);top:0}
+.fld.circle{border:.35mm solid #000;border-radius:50%;transform:translate(-50%,-50%)}
+.adjust .fld{outline:1px dashed #e0533d;background:rgba(255,230,0,.35);cursor:move;touch-action:none}
+.adjust .fld.boxes{min-width:4mm;min-height:4mm}
+.adjust .fld::after{content:attr(data-label);position:absolute;left:0;top:-3.2mm;font:2.4mm sans-serif;color:#c03;background:#fff;white-space:nowrap}
+.small{font-size:12px}
+.f input[type=number]{max-width:100%}
+@media print{
+  @page{size:A4 portrait;margin:0}
+  body{background:#fff}
+  header,main>section:not(#printSec),#printSec>*:not(#wrap){display:none!important}
+  main{padding:0;margin:0;max-width:none}
+  #printSec{border:0;padding:0;margin:0}
+  #wrap{border:0;overflow:visible;height:auto!important;background:none}
+  #sheet{transform:none!important}
+  #bg{display:block!important}
+  .adjust .fld{outline:none;background:none}
+  .adjust .fld::after{display:none}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>介護保険 申請書 転記ツール</h1>
+  <p>被保険者証の内容を読み取り → 記入済みの要介護認定申請書を白紙に印刷・PDF保存</p>
+</header>
+<main>
+
+<section>
+  <h2>① 被保険者証を読み取る</h2>
+  <div class="paste">
+    <h3>おすすめ：スマホの文字認識でコピーして貼り付ける</h3>
+    <ol class="note">
+      <li><b>iPhone</b>：カメラで証を写し、右下に出る［テキスト認識］ボタン → 「すべてを選択」→「コピー」<br>
+          <b>Android</b>：Googleレンズで証を写し、「テキスト」→「すべて選択」→「コピー」</li>
+      <li>下の枠を長押しして「ペースト」（貼り付けると自動で②に入力されます）</li>
+    </ol>
+    <textarea id="pasteTxt" rows="5" placeholder="ここに貼り付け"></textarea>
+    <div class="row"><button id="pasteBtn">貼り付けた文字から入力</button><button class="sub" id="pasteClr">枠を空にする</button><span id="pasteStatus" class="small"></span></div>
+  </div>
+  <h3>または：このアプリで写真から読み取る（精度は低め）</h3>
+  <div class="row"><span id="engine">文字認識：待機中</span></div>
+  <div class="row">
+    <label class="btn" for="cardFile">📷 写真を選ぶ／撮る</label>
+    <input type="file" id="cardFile" accept="image/*" capture="environment">
+    <button class="sub" id="rotBtn" disabled>↻ 90°回転</button>
+    <button class="sub" id="cropClr" hidden>囲みを解除</button>
+    <button id="ocrBtn" disabled>読み取り開始</button>
+  </div>
+  <p class="note" id="cropHint" hidden>写真の上を指（マウス）でなぞって、<b>番号・住所・氏名・生年月日の欄だけ</b>を囲むと精度が上がります。囲まなければ写真全体を読みます。</p>
+  <div id="preview"><canvas id="prevCv"></canvas><div id="cropBox" hidden></div></div>
+  <div class="row"><span id="status"></span><progress id="prog" max="1" value="0" hidden></progress></div>
+  <details><summary>読み取った文字（確認用）</summary><pre id="raw"></pre></details>
+  <p class="note">写真は端末の中だけで処理され、外部には送信されません（文字認識の部品はページを開いたときに自動で準備します。初回のみネット接続が必要です）。<br>
+  <b>読み取りは完璧ではありません。</b>②で必ず目で確認・修正してください。黄色の欄は自動入力された項目です。</p>
+</section>
+
+<section>
+  <h2>② 内容を確認・入力</h2>
+  <fieldset><legend>申請</legend>
+    <div class="grid">
+      <div class="f"><label>申請年月日</label><input type="date" id="f_appDate"></div>
+      <div class="f"><label>申請者氏名</label><input id="f_applicant"></div>
+      <div class="f"><label>本人との関係</label><input id="f_relation"></div>
+      <div class="f"><label>提出代行者（○をつける番号）</label>
+        <select id="f_agentType"><option value="">なし</option><option value="1" selected>1 指定居宅介護支援事業者</option><option value="2">2 介護保険施設</option><option value="3">3 地域包括支援センター</option></select></div>
+      <div class="f"><label>担当者</label><input id="f_tanto"></div>
+    </div>
+  </fieldset>
+  <fieldset><legend>被保険者</legend>
+    <div class="grid">
+      <div class="f"><label>被保険者番号（10桁）</label><input id="f_hihoNo" inputmode="numeric" maxlength="10"></div>
+      <div class="f"><label>氏名</label><input id="f_name"></div>
+      <div class="f"><label>フリガナ（証には無いので手入力）</label><input id="f_kana"></div>
+      <div class="f inline"><div><label>元号</label><select id="f_era"><option value="">-</option><option>明治</option><option>大正</option><option selected>昭和</option></select></div>
+        <div><label>年</label><input id="f_birthY" inputmode="numeric"></div><div><label>月</label><input id="f_birthM" inputmode="numeric"></div><div><label>日</label><input id="f_birthD" inputmode="numeric"></div></div>
+      <div class="f"><label>年齢（申請日時点・自動計算）</label><input id="f_age" inputmode="numeric"></div>
+      <div class="f"><label>性別</label><select id="f_sex"><option value="">-</option><option>男</option><option>女</option></select></div>
+      <div class="f"><label>個人番号（12桁・手入力）</label><input id="f_myNo" inputmode="numeric" maxlength="12"></div>
+      <div class="f"><label>郵便番号</label><input id="f_zip" placeholder="801-0801"></div>
+      <div class="f"><label>住所</label><input id="f_addr"></div>
+      <div class="f"><label>電話番号</label><input id="f_tel"></div>
+    </div>
+    <div class="row small" style="margin-top:6px"><label><input type="checkbox" id="optCity" checked> 区名で始まる住所の先頭に「北九州市」を付ける</label></div>
+  </fieldset>
+  <fieldset><legend>連絡先・主治医</legend>
+    <div class="grid">
+      <div class="f"><label>連絡先 氏名</label><input id="f_cName"></div>
+      <div class="f"><label>本人との関係</label><input id="f_cRel"></div>
+      <div class="f"><label>電話番号</label><input id="f_cTel"></div>
+      <div class="f inline"><div><label>主治医 姓</label><input id="f_docSei"></div><div><label>名</label><input id="f_docMei"></div></div>
+      <div class="f"><label>医療機関名</label><input id="f_hosp"></div>
+    </div>
+  </fieldset>
+  <fieldset><legend>前回の要介護認定の結果（更新の場合）</legend>
+    <div class="grid">
+      <div class="f"><label>結果</label><input id="f_prevResult" placeholder="要介護2"></div>
+      <div class="f inline"><div><label>満了日 令和 年</label><input id="f_expY" inputmode="numeric"></div><div><label>月</label><input id="f_expM" inputmode="numeric"></div><div><label>日</label><input id="f_expD" inputmode="numeric"></div></div>
+    </div>
+  </fieldset>
+  <div class="row"><button class="danger" id="clearBtn">入力をすべて消す</button></div>
+  <p class="note">入力内容は保存されません（個人情報保護のため）。ページを閉じると消えます。</p>
+</section>
+
+<section id="printSec">
+  <h2>③ 印刷</h2>
+  <div class="row">
+    <button id="printBtn">🖨 印刷する／PDFに保存</button>
+  </div>
+  <p class="note">申請書の枠ごと<b>白紙のA4</b>に印刷します（位置合わせは不要です）。印刷画面では「用紙A4・倍率100%（ページに合わせない）・余白なし・ヘッダーとフッターなし」にしてください。<br>
+  データで残したいときは、印刷画面のプリンターで「PDFに保存」を選ぶと、記入済みの申請書がPDFになります。</p>
+  <details class="small" id="advBox"><summary>詳細設定（通常は使いません）</summary>
+    <div class="row small" style="margin-top:6px">
+      全体ずらし 横<input type="number" id="offX" step="0.5" value="0" style="width:64px">mm
+      縦<input type="number" id="offY" step="0.5" value="0" style="width:64px">mm
+      文字サイズ<input type="number" id="fs" step="0.1" value="3.5" style="width:64px">mm
+      印刷倍率<input type="number" id="pscale" step="0.5" value="100" style="width:64px">%
+    </div>
+    <div class="row small">
+      <button class="sub" id="adjBtn">位置調整モード</button>
+      <button class="sub" id="resetPos">位置を初期値に戻す</button>
+    </div>
+  </details>
+  <div id="wrap"><div id="sheet"><img id="bg" alt="要介護認定申請書" src="form.png"><div id="layer"></div></div></div>
+</section>
+</main>
+
+<script>
+/* ===== 印字位置（mm, A4左上基準）===== */
+const FIELDS=[
+ /* 申請書（北九州市・Word版）の罫線と文字の位置から測った値 */
+ {id:'appY',label:'申請 年',x:159.5,y:16.8,c:1},
+ {id:'appM',label:'申請 月',x:169,y:16.8,c:1},
+ {id:'appD',label:'申請 日',x:180.5,y:16.8,c:1},
+ {id:'hihoNo',label:'被保険者番号',x:0,y:22.8,type:'boxes',xs:[126.25,133.75,141.25,148.8,156.35,163.65,170.7,177.65,184.55,191.5]},
+ {id:'applicant',label:'申請者氏名',x:43,y:31.2},
+ {id:'relation',label:'本人との関係',x:148,y:31.2},
+ {id:'agentType',label:'代行者○',x:58.5,y:39.6,type:'circle',opts:{'1':0,'2':37.3,'3':104.5},d:4.6},
+ {id:'tanto',label:'担当者',x:153,y:43.3},
+ {id:'kana',label:'フリガナ',x:50,y:58.4,s:.8},
+ {id:'name',label:'氏名',x:50,y:66,s:1.4},
+ {id:'era',label:'元号○',x:124.8,y:59.6,type:'circle',opts:{'明治':0,'大正':4.7,'昭和':10.4},d:4.6},
+ {id:'birthY',label:'生 年',x:140,y:59.6,c:1},
+ {id:'birthM',label:'生 月',x:148.8,y:59.6,c:1},
+ {id:'birthD',label:'生 日',x:158,y:59.6,c:1},
+ {id:'age',label:'歳',x:155,y:63.4,c:1},
+ {id:'sex',label:'性別○',x:181.5,y:61.1,type:'circle',opts:{'男':0,'女':7},d:5.6},
+ {id:'myNo',label:'個人番号',x:0,y:68.7,type:'boxes',xs:[139.9,144.7,149.5,154.3,159.1,163.9,168.7,173.5,178.3,183.1,187.9,192.7]},
+ {id:'zip1',label:'〒前',x:58.7,y:73.8,c:1},
+ {id:'zip2',label:'〒後',x:74.5,y:73.8,c:1},
+ {id:'telA',label:'電話 市外',x:151.7,y:73.8,c:1},
+ {id:'telB',label:'電話 局番',x:164.7,y:73.8,c:1},
+ {id:'telC',label:'電話 番号',x:174.5,y:73.8},
+ {id:'addr',label:'住所',x:50,y:77.6},
+ {id:'cName',label:'連絡先氏名',x:57,y:109.5,s:.85},
+ {id:'cRel',label:'連絡先関係',x:73,y:112.2,s:.85},
+ {id:'cTelA',label:'連絡先 市外',x:69.5,y:114.8,c:1,s:.85},
+ {id:'cTelB',label:'連絡先 局番',x:84.3,y:114.8,c:1,s:.85},
+ {id:'cTelC',label:'連絡先 番号',x:93.5,y:114.8,s:.85},
+ {id:'docSei',label:'医師 姓',x:71,y:126.3},
+ {id:'docMei',label:'医師 名',x:95,y:126.3},
+ {id:'hosp',label:'医療機関',x:139,y:124.2},
+ {id:'prevResult',label:'前回結果',x:56,y:175.2},
+ {id:'expY',label:'満了 年',x:141.3,y:175.2,c:1},
+ {id:'expM',label:'満了 月',x:152.5,y:175.2,c:1},
+ {id:'expD',label:'満了 日',x:164.3,y:175.2,c:1}
+];
+const POS_KEY='kaigoTenki_pos_v2', SET_KEY='kaigoTenki_set_v2';
+const $=id=>document.getElementById(id);
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+let pos=lsGet(POS_KEY)||{};
+function P(f){return pos[f.id]||{x:f.x,y:f.y}}
+
+/* ===== 被保険者証テキスト解析 ===== */
+// PARSE_START
+function parseCard(text){
+  const t=text.normalize('NFKC');
+  const lines=t.split(/\r?\n/).map(l=>l.replace(/[\s　]+/g,'')).filter(Boolean);
+  const all=lines.join('\n');
+  // 表の罫線（| [ ] 「 」）で区切った断片。横に並んだ別の欄の文字が混ざるのを防ぐ
+  const segs=lines.flatMap(l=>l.split(/[|｜\[\]「」『』]/)).filter(Boolean);
+  const r={};
+  // 被保険者番号
+  let numLine=lines.find(l=>/番号/.test(l)&&/\d{10}/.test(l));
+  let m=(numLine||all).match(/(?<!\d)\d{10}(?!\d)/)||(numLine||all).match(/\d{10}/);
+  if(m) r.hihoNo=m[0];
+  // 郵便番号（区切りが「一」や「ー」に化けることが多い）
+  m=all.match(/(?<!\d)(\d{3})[-ー−‐―~〜一]?(\d{4})(?!\d)/);
+  if(m) r.zip=m[1]+'-'+m[2];
+  // 住所：「〇〇区（町名）〇丁目〇番〇号」の形を探す。北九州市の区を優先
+  const BLK='(?:[一二三四五六七八九十\\d]+丁目)?\\d+(?:番地?(?:\\d+号?)?|[-ー−]\\d+(?:[-ー−]\\d+)?)';
+  const reK=new RegExp('((?:北九州市)?(?:門司|小倉北|小倉南|若松|八幡東|八幡西|戸畑)区[\\u4e00-\\u9fff々ヶケ]{1,10}?'+BLK+')');
+  const reG=new RegExp('([\\u4e00-\\u9fff]{1,6}[市区町村][\\u4e00-\\u9fff々ヶケ]{0,10}?'+BLK+')');
+  for(const re of [reK,reG]){
+    const s=segs.find(s=>re.test(s));
+    if(s){r.addr=s.match(re)[1].replace(/^(住所|所|住)/,'');break}
+  }
+  // 生年月日（「日」は「昌」「晶」などに化けやすいので見ない）
+  const BR=/(明治|大正|昭和|平成)(\d{1,2})年(\d{1,2})月(\d{1,2})/;
+  let bl=lines.find(l=>/生年/.test(l)&&BR.test(l))||lines.find(l=>BR.test(l)&&!/令和/.test(l));
+  m=bl&&bl.match(BR);
+  if(m){r.era=m[1];r.birthY=m[2];r.birthM=m[3];r.birthD=m[4]}
+  else{
+    // 元号が読めなかったとき：「生年」の行の 〇年〇月〇 を拾い、元号は昭和とみなす
+    const l2=lines.find(l=>/生年/.test(l)&&/\d{1,2}年\d{1,2}月\d{1,2}/.test(l));
+    m=l2&&l2.match(/(\d{1,2})年(\d{1,2})月(\d{1,2})/);
+    if(m){bl=l2;r.era=/大正/.test(l2)?'大正':/明治/.test(l2)?'明治':'昭和';r.birthY=m[1];r.birthM=m[2];r.birthD=m[3]}
+  }
+  // 性別
+  if(!bl) bl=lines.find(l=>/(明治|大正|昭和|平成)\d/.test(l)||/生年月日/.test(l));
+  m=bl&&bl.match(/(男|女)(?!.*(男|女))/);
+  if(!m) m=all.match(/性別?[^\n]{0,4}?(男|女)/);
+  if(!m) m=all.match(/^(男|女)$/m);
+  if(m) r.sex=m[1];
+  // 空白を残した行（スマホの文字認識なら「山田 太郎」のように姓と名の間だけ空く）
+  const raw=t.split(/\r?\n/).map(l=>l.trim().replace(/[\s　]+/g,' ')).filter(Boolean);
+  const tidy=s=>{s=s.trim();return s.split(' ').length===2?s:s.replace(/ /g,'')};
+  const KANA=/^[゠-ヿー ]{2,30}$/, NAMEOK=/^[一-鿿぀-ヿー々 ]{2,15}$/;
+  // フリガナ
+  for(let i=0;i<raw.length;i++){
+    const mm=raw[i].match(/^フ\s*リ\s*ガ\s*ナ\s*(.*)$/); if(!mm) continue;
+    const v=mm[1]||raw[i+1]||'';
+    if(KANA.test(v)){r.kana=tidy(v);break}
+  }
+  // 氏名：「氏名 山田 太郎」または「氏名」の次の行
+  let nm='';
+  for(let i=0;i<raw.length&&!nm;i++){
+    const mm=raw[i].match(/^(?:被保険者\s*)?氏\s*名\s*(.*)$/); if(!mm) continue;
+    const v=(mm[1]||raw[i+1]||'').trim();
+    if(NAMEOK.test(v)&&!KANA.test(v)) nm=tidy(v);
+  }
+  if(nm){r.name=nm}
+  else{
+  m=segs.join('\n').match(/氏名([^\d\n]{2,12})/);nm=m?m[1]:'';
+  if(!nm){
+    const a=lines.findIndex(l=>/フリガナ/.test(l)), b=lines.findIndex(l=>/生年月日|(明治|大正|昭和|平成)\d/.test(l));
+    if(a>=0&&b>a){
+      const cand=lines.slice(a+1,b).map(l=>l.replace(/^(氏名|氏|名|者|険|保|被)+/,'')).filter(l=>/^[一-鿿぀-ヿー々]{2,12}$/.test(l));
+      cand.sort((x,y)=>y.length-x.length); nm=cand[0]||'';
+    }
+  }
+  nm=nm.replace(/^(者|険|保|被)+/,'').replace(/[^一-鿿぀-ヿー々]/g,'');
+  if(nm) r.name=nm;
+  }
+  // 項目名「氏名」が読み取れなかったとき：住所と生年月日の間にある「漢字だけの短い行」を姓・名とみなす
+  if(!r.name){
+    const flat=l=>l.replace(/ /g,'');
+    const ai=raw.findIndex(l=>reK.test(flat(l))||reG.test(flat(l)));
+    const bi=raw.findIndex(l=>BR.test(flat(l))&&!/令和/.test(l));
+    const end=bi>ai?bi:raw.length;
+    const STOP=/^(令和|昭和|平成|大正|明治|単位|名称|内容|内|容|別|男|女|種類|性別|住所|氏名|番号|交付|届出|入所|退所|開始|終了|給付|制限|意見|被保険者)$/;
+    const BAD=/(年|月|日|位|区分|期間|基準|限度|種|額|事業|施設|審査|認定|介護|保険|支援|指定|名称)/;
+    const ok=s=>/^[一-鿿々]{1,4}$/.test(s)&&!STOP.test(s)&&!BAD.test(s);
+    for(let i=Math.max(0,ai+1);i<end;i++){
+      const p=raw[i].split(' ');
+      if(p.length===2&&ok(p[0])&&ok(p[1])&&(p[0]+p[1]).length>=3){r.name=p.join(' ');break}
+      if(ok(raw[i])&&raw[i+1]&&ok(raw[i+1])&&(raw[i]+raw[i+1]).length>=3){r.name=raw[i]+' '+raw[i+1];break}
+    }
+  }
+  // 要介護度
+  m=all.match(/(要介護|要支援)([1-5])/);
+  if(m) r.prevResult=m[1]+m[2];
+  // 有効期間 満了日
+  const EX=/令和(\d{1,2})年(\d{1,2})月(\d{1,2})\D{0,4}?令和(\d{1,2})年(\d{1,2})月(\d{1,2})/;
+  const el=lines.find(l=>/有効期間/.test(l)&&EX.test(l))||lines.find(l=>EX.test(l));
+  m=el&&el.match(EX);
+  // 行の途中で割れている場合：改行を詰めて「令和〇年〇月〇日～令和〇年〇月〇日」を探す
+  if(!m) m=lines.join('').match(/令和(\d{1,2})年(\d{1,2})月(\d{1,2})日?[~〜～\-―−]+令和(\d{1,2})年(\d{1,2})月(\d{1,2})/);
+  if(m){r.expY=m[4];r.expM=m[5];r.expD=m[6]}
+  return r;
+}
+// PARSE_END
+
+/* ===== 和暦・年齢 ===== */
+const ERA_BASE={'明治':1867,'大正':1911,'昭和':1925,'平成':1988};
+function calcAge(){
+  const e=$('f_era').value,y=+$('f_birthY').value,mo=+$('f_birthM').value,d=+$('f_birthD').value;
+  if(!e||!y||!mo||!d) return;
+  const by=ERA_BASE[e]+y;
+  const ad=$('f_appDate').value?new Date($('f_appDate').value):new Date();
+  let age=ad.getFullYear()-by;
+  if(ad.getMonth()+1<mo||(ad.getMonth()+1===mo&&ad.getDate()<d)) age--;
+  $('f_age').value=age;
+}
+function wareki(dateStr){
+  if(!dateStr) return ['','',''];
+  const [Y,M,D]=dateStr.split('-').map(Number);
+  return [String(Y-2018),String(M),String(D)];
+}
+
+/* ===== 電話番号を（市外局番）局番－番号 に分ける ===== */
+function telParts(key,s){
+  const p=String(s).normalize('NFKC').split(/[^\d]+/).filter(Boolean), d=p.join('');
+  let a='',b='',c='';
+  if(p.length>=3){[a,b,c]=p}
+  else if(p.length===2){[b,c]=p}
+  else if(d.length===11){a=d.slice(0,3);b=d.slice(3,7);c=d.slice(7)}
+  else if(d.length===10){a=d.slice(0,3);b=d.slice(3,6);c=d.slice(6)}
+  else c=d;
+  return {[key+'A']:a,[key+'B']:b,[key+'C']:c};
+}
+
+/* ===== 値の組み立て ===== */
+function values(){
+  const g=id=>$('f_'+id)?$('f_'+id).value.trim():'';
+  const [ay,am,ad]=wareki($('f_appDate').value);
+  const zip=g('zip').replace(/[^\d]/g,'');
+  let addr=g('addr');
+  if($('optCity').checked&&/^(門司区|小倉北区|小倉南区|若松区|八幡東区|八幡西区|戸畑区)/.test(addr)) addr='北九州市'+addr;
+  return {appY:ay,appM:am,appD:ad,hihoNo:g('hihoNo').replace(/\D/g,''),applicant:g('applicant'),relation:g('relation'),
+    agentType:g('agentType'),tanto:g('tanto'),kana:g('kana'),name:g('name'),era:g('era'),
+    birthY:g('birthY'),birthM:g('birthM'),birthD:g('birthD'),age:g('age'),sex:g('sex'),myNo:g('myNo').replace(/\D/g,''),
+    zip1:zip.slice(0,3),zip2:zip.slice(3,7),...telParts('tel',g('tel')),addr,cName:g('cName'),cRel:g('cRel'),...telParts('cTel',g('cTel')),
+    docSei:g('docSei'),docMei:g('docMei'),hosp:g('hosp'),prevResult:g('prevResult'),expY:g('expY'),expM:g('expM'),expD:g('expD')};
+}
+
+/* ===== 描画 ===== */
+let adjusting=false;
+function render(){
+  const v=values(), layer=$('layer'), fs=+$('fs').value||3.6;
+  const ox=+$('offX').value||0, oy=+$('offY').value||0;
+  layer.innerHTML='';
+  const ps=(+$('pscale').value||100)/100; // スマホ印刷で全体が縮むときの補正
+  layer.style.transformOrigin='0 0';
+  layer.style.transform=`translate(${ox}mm,${oy}mm) scale(${ps})`;
+  for(const f of FIELDS){
+    const val=v[f.id]; const p=P(f);
+    if(!val&&!adjusting) continue;
+    const el=document.createElement('div');
+    el.className='fld'; el.dataset.id=f.id; el.dataset.label=f.label;
+    el.style.fontSize=(fs*(f.s||1))+'mm';
+    if(f.type==='boxes'){
+      el.classList.add('boxes');
+      el.style.left=p.x+'mm'; el.style.top=p.y+'mm';
+      (val||'').split('').slice(0,f.xs.length).forEach((ch,i)=>{const s=document.createElement('span');s.textContent=ch;s.style.left=f.xs[i]+'mm';el.appendChild(s)});
+    }else if(f.type==='circle'){
+      el.classList.add('circle');
+      const dx=(val&&f.opts[val]!=null)?f.opts[val]:0;
+      el.style.left=(p.x+dx)+'mm'; el.style.top=p.y+'mm';
+      el.style.width=el.style.height=f.d+'mm';
+      if(!val) el.style.opacity=.4;
+    }else{
+      if(f.c) el.classList.add('c');
+      el.style.left=p.x+'mm'; el.style.top=p.y+'mm';
+      el.textContent=val||(adjusting?'●':'');
+    }
+    layer.appendChild(el);
+  }
+  fit();
+}
+function fit(){
+  const wrap=$('wrap'),sheet=$('sheet');
+  const s=Math.min(1,wrap.clientWidth/sheet.offsetWidth);
+  sheet.style.transform=`scale(${s})`;
+  wrap.style.height=(sheet.offsetHeight*s)+'px';
+}
+window.addEventListener('resize',fit);
+
+/* ===== ドラッグで位置調整 ===== */
+let drag=null;
+$('layer').addEventListener('pointerdown',e=>{
+  if(!adjusting) return;
+  const el=e.target.closest('.fld'); if(!el) return;
+  const f=FIELDS.find(x=>x.id===el.dataset.id); const p=P(f);
+  drag={f,el,sx:e.clientX,sy:e.clientY,px:p.x,py:p.y,mmpx:210/$('sheet').getBoundingClientRect().width};
+  el.setPointerCapture(e.pointerId); e.preventDefault();
+});
+$('layer').addEventListener('pointermove',e=>{
+  if(!drag) return;
+  const nx=+(drag.px+(e.clientX-drag.sx)*drag.mmpx).toFixed(1), ny=+(drag.py+(e.clientY-drag.sy)*drag.mmpx).toFixed(1);
+  pos[drag.f.id]={x:nx,y:ny};
+  const dx=drag.f.type==='circle'?(drag.f.opts[values()[drag.f.id]]||0):0;
+  drag.el.style.left=(nx+dx)+'mm'; drag.el.style.top=ny+'mm';
+});
+$('layer').addEventListener('pointerup',()=>{if(drag){lsSet(POS_KEY,pos);drag=null}});
+
+/* ===== 文字認識エンジン（先読み・使い回し）===== */
+// ページを開いた時点でエンジンを作り、以後は使い回す（毎回作り直すと遅い）。
+const WORKER_URL='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js';
+const OCR_SIDE=1600; // 認識に使う画像の長辺(px)。大きいほど遅い
+let workerP=null, ocrListener=null;
+function setEngine(text,cls){const e=$('engine');e.textContent='文字認識：'+text;e.className=cls||''}
+function getWorker(){
+  if(workerP) return workerP;
+  if(typeof Tesseract==='undefined'){setEngine('部品を読み込めません（ネット接続を確認）','err');return Promise.reject(new Error('文字認識の部品を読み込めませんでした。ネット接続を確認してください。'))}
+  setEngine('準備中…');
+  const logger=m=>{
+    if(ocrListener) ocrListener(m);
+    else if(/loading|initializ/.test(m.status)) setEngine('準備中…'+(m.progress?Math.round(m.progress*100)+'%':''));
+  };
+  // 日本語データはページと一緒に置いたもの（ocr/jpn-traineddata.wasm）を読み込んで渡す。
+  // claude.ai上では外部サイトからのデータ取得が禁止されているため。
+  // パソコンにファイルとして保存して開いた場合は、日本語データを通常どおりネットから取得する
+  if(location.protocol==='file:'){
+    workerP=Tesseract.createWorker('jpn',1,{logger});
+    workerP.then(()=>setEngine('準備OK ✓','ready'),err=>{workerP=null;setEngine('準備に失敗しました：'+(err&&err.message||err),'err')});
+    return workerP;
+  }
+  const dataUrl=new URL('ocr/jpn-traineddata.wasm',location.href).href;
+  // エンジン（Worker）が日本語データを取りに行くときだけ、行き先を同梱ファイルに差し替える
+  const shim=`const __f=self.fetch.bind(self);self.fetch=(u,o)=>/jpn\\.traineddata(\\.gz)?$/.test(String(u))?__f(${JSON.stringify(dataUrl)},o):__f(u,o);importScripts(${JSON.stringify(WORKER_URL)});`;
+  const workerPath=URL.createObjectURL(new Blob([shim],{type:'application/javascript'}));
+  let fail;
+  const failed=new Promise((_,ng)=>{fail=ng});
+  const timer=setTimeout(()=>fail(new Error('時間切れ（ネット接続を確認してページを開き直してください）')),90000);
+  workerP=Promise.race([
+    Tesseract.createWorker('jpn',1,{logger,workerPath,workerBlobURL:false,langPath:'https://local.invalid',gzip:false,cachePath:'kaigo-ocr',errorHandler:e=>fail(e instanceof Error?e:new Error(String(e)))}),
+    failed
+  ]).finally(()=>clearTimeout(timer));
+  workerP.then(()=>setEngine('準備OK ✓','ready'),err=>{workerP=null;setEngine('準備に失敗しました：'+(err&&err.message||err),'err')});
+  return workerP;
+}
+
+/* ===== 読み取り ===== */
+let cardImg=null, rot=0, crop=null; // crop: 回転後の写真に対する割合 {x,y,w,h}
+function loadImg(file){return new Promise((ok,ng)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=ng;i.src=URL.createObjectURL(file)})}
+$('cardFile').addEventListener('change',async e=>{
+  const file=e.target.files[0]; if(!file) return;
+  getWorker().catch(()=>{});
+  cardImg=await loadImg(file); rot=0; crop=null; showPrev();
+  $('ocrBtn').disabled=false; $('rotBtn').disabled=false; $('cropHint').hidden=false;
+  $('status').textContent='写真が横倒しなら回転し、読み取りたい欄を囲んでから「読み取り開始」を押してください。';
+});
+$('rotBtn').onclick=()=>{rot=(rot+90)%360;crop=null;showPrev()};
+$('cropClr').onclick=()=>{crop=null;drawCrop()};
+// 回転後の写真のうち crop の範囲を、長辺 maxSide px 程度で切り出す（元の写真の解像度から切り出すので細かい字も潰れない）
+function makeCanvas(maxSide,area){
+  const a=area||{x:0,y:0,w:1,h:1};
+  const w0=cardImg.naturalWidth,h0=cardImg.naturalHeight;
+  const rw=rot%180?h0:w0, rh=rot%180?w0:h0;
+  const cx0=a.x*rw, cy0=a.y*rh, cw=a.w*rw, ch=a.h*rh;
+  const s=Math.min(2,maxSide/Math.max(cw,ch));
+  const cv=document.createElement('canvas');
+  cv.width=Math.max(1,Math.round(cw*s));cv.height=Math.max(1,Math.round(ch*s));
+  const cx=cv.getContext('2d',{willReadFrequently:true});
+  cx.scale(s,s);cx.translate(-cx0,-cy0);cx.translate(rw/2,rh/2);cx.rotate(rot*Math.PI/180);
+  cx.drawImage(cardImg,-w0/2,-h0/2,w0,h0);
+  return cv;
+}
+function showPrev(){
+  const src=makeCanvas(900), pv=$('prevCv');
+  pv.width=src.width;pv.height=src.height;pv.getContext('2d').drawImage(src,0,0);
+  $('preview').classList.add('on');drawCrop();
+}
+function drawCrop(){
+  const b=$('cropBox'), pv=$('prevCv');
+  $('cropClr').hidden=!crop;
+  if(!crop){b.hidden=true;return}
+  b.hidden=false;
+  b.style.left=(pv.offsetLeft+crop.x*pv.clientWidth)+'px';b.style.top=(pv.offsetTop+crop.y*pv.clientHeight)+'px';
+  b.style.width=(crop.w*pv.clientWidth)+'px';b.style.height=(crop.h*pv.clientHeight)+'px';
+}
+window.addEventListener('resize',drawCrop);
+let cropDrag=null;
+function relPt(e){const r=$('prevCv').getBoundingClientRect();return {x:Math.min(1,Math.max(0,(e.clientX-r.left)/r.width)),y:Math.min(1,Math.max(0,(e.clientY-r.top)/r.height))}}
+$('prevCv').addEventListener('pointerdown',e=>{if(!cardImg)return;cropDrag=relPt(e);$('prevCv').setPointerCapture(e.pointerId);e.preventDefault()});
+$('prevCv').addEventListener('pointermove',e=>{
+  if(!cropDrag)return;const p=relPt(e);
+  crop={x:Math.min(p.x,cropDrag.x),y:Math.min(p.y,cropDrag.y),w:Math.abs(p.x-cropDrag.x),h:Math.abs(p.y-cropDrag.y)};drawCrop();
+});
+$('prevCv').addEventListener('pointerup',()=>{if(!cropDrag)return;cropDrag=null;if(crop&&(crop.w<.05||crop.h<.05))crop=null;drawCrop()});
+function preprocess(cv){
+  const cx=cv.getContext('2d'),d=cx.getImageData(0,0,cv.width,cv.height),a=d.data;
+  const hist=new Array(256).fill(0),g=new Uint8ClampedArray(a.length/4);
+  for(let i=0,j=0;i<a.length;i+=4,j++){const v=Math.min(a[i],a[i+1],a[i+2])*.5+(.3*a[i]+.59*a[i+1]+.11*a[i+2])*.5;g[j]=v;hist[v|0]++}
+  const tot=g.length;let acc=0,lo=0,hi=255;
+  for(let k=0;k<256;k++){acc+=hist[k];if(acc>tot*.02){lo=k;break}}
+  acc=0;for(let k=255;k>=0;k--){acc+=hist[k];if(acc>tot*.25){hi=k;break}}
+  const span=Math.max(1,hi-lo);
+  for(let i=0,j=0;i<a.length;i+=4,j++){let v=(g[j]-lo)/span*255;v=v>255?255:v<0?0:v;a[i]=a[i+1]=a[i+2]=v}
+  cx.putImageData(d,0,0);return cv;
+}
+$('ocrBtn').onclick=async()=>{
+  $('ocrBtn').disabled=true;$('prog').hidden=false;$('prog').value=0;
+  const t0=performance.now(), sec=()=>Math.round((performance.now()-t0)/1000);
+  const tick=setInterval(()=>{if(!ocrListener||$('prog').value===0)$('status').textContent=`準備中…（${sec()}秒）`},1000);
+  $('status').textContent='準備中…';
+  try{
+    const worker=await getWorker();
+    ocrListener=m=>{if(m.status==='recognizing text'){$('prog').value=m.progress;$('status').textContent=`読み取り中… ${Math.round(m.progress*100)}%（${sec()}秒）`}};
+    const cv=preprocess(makeCanvas(OCR_SIDE,crop));
+    const {data}=await worker.recognize(cv);
+    $('raw').textContent=data.text;
+    const n=applyParsed(data.text);
+    $('status').textContent=n?`${n}項目を自動入力しました（${sec()}秒）。②で内容を確認してください。`:'うまく読み取れませんでした。明るい場所で真上から撮り直すか、手入力してください。';
+  }catch(err){console.error(err);$('status').textContent='エラー：'+(err&&err.message||err)}
+  clearInterval(tick);ocrListener=null;
+  $('ocrBtn').disabled=false;$('prog').hidden=true;
+};
+
+/* ===== 解析結果を入力欄へ ===== */
+function applyParsed(text){
+  const r=parseCard(text);let n=0;
+  for(const [k,v] of Object.entries(r)){const el=$('f_'+k);if(el&&v){el.value=v;el.classList.add('auto');n++}}
+  calcAge();render();return n;
+}
+$('pasteBtn').onclick=()=>{
+  const t=$('pasteTxt').value;
+  if(!t.trim()){$('pasteStatus').textContent='枠が空です。先に文字を貼り付けてください。';return}
+  const n=applyParsed(t);
+  $('pasteStatus').textContent=n?`${n}項目を入力しました。②で確認してください。`:'項目を見つけられませんでした。②に手入力してください。';
+};
+// 貼り付けたらボタンを押さなくても自動で入力する
+$('pasteTxt').addEventListener('paste',()=>setTimeout(()=>$('pasteBtn').click(),0));
+$('pasteClr').onclick=()=>{$('pasteTxt').value='';$('pasteStatus').textContent=''};
+
+/* ===== 各種イベント ===== */
+document.querySelectorAll('main input,main select').forEach(el=>{
+  if(el.type==='file') return;
+  el.addEventListener('input',()=>{el.classList.remove('auto');if(/f_(era|birth|appDate)/.test(el.id))calcAge();if(['offX','offY','fs','pscale'].includes(el.id))saveSet();render()});
+  el.addEventListener('change',()=>{if(/f_(era|birth|appDate)/.test(el.id))calcAge();render()});
+});
+function saveSet(){lsSet(SET_KEY,{offX:$('offX').value,offY:$('offY').value,fs:$('fs').value,pscale:$('pscale').value})}
+$('adjBtn').onclick=()=>{adjusting=!adjusting;$('sheet').classList.toggle('adjust',adjusting);$('adjBtn').textContent=adjusting?'位置調整を終了':'位置調整モード';render()};
+// 確認ダイアログが使えない環境のため「2回押しで実行」にする
+function twoTap(btn,msg){
+  if(btn.dataset.armed){clearTimeout(+btn.dataset.armed);btn.textContent=btn.dataset.orig;delete btn.dataset.armed;return true}
+  btn.dataset.orig=btn.textContent;btn.textContent=msg;
+  btn.dataset.armed=setTimeout(()=>{btn.textContent=btn.dataset.orig;delete btn.dataset.armed},4000);
+  return false;
+}
+$('resetPos').onclick=e=>{if(twoTap(e.currentTarget,'もう一度押すと初期値に戻ります')){pos={};lsSet(POS_KEY,pos);render()}};
+$('printBtn').onclick=()=>{
+  if(adjusting) $('adjBtn').click();
+  render(); setTimeout(()=>window.print(),50);
+};
+$('clearBtn').onclick=()=>{
+  if(!twoTap($('clearBtn'),'もう一度押すとすべて消えます'))return;
+  document.querySelectorAll('section input:not([type=file]):not([type=number]):not([type=checkbox])').forEach(i=>{i.value='';i.classList.remove('auto')});
+  $('f_appDate').valueAsDate=new Date();$('raw').textContent='';$('pasteTxt').value='';$('pasteStatus').textContent='';cardImg=null;crop=null;$('preview').classList.remove('on');$('cropBox').hidden=true;$('cropClr').hidden=true;$('cropHint').hidden=true;$('ocrBtn').disabled=true;$('rotBtn').disabled=true;render();
+};
+(function init(){
+  const s=lsGet(SET_KEY);
+  if(s){$('offX').value=s.offX||0;$('offY').value=s.offY||0;$('fs').value=s.fs||3.5;$('pscale').value=s.pscale||100}
+  const t=new Date();$('f_appDate').value=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+  render();
+  // ページを開いたら裏で文字認識エンジンを準備しておく（写真を選ぶ頃には終わっている）
+  setTimeout(()=>getWorker().catch(()=>{}),300);
+})();
+</script>
+</body>
+</html>
